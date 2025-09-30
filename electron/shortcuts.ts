@@ -59,24 +59,24 @@ export class ShortcutsHelper {
       }
     })
 
-    // New shortcuts for moving the window
-    globalShortcut.register("CommandOrControl+Left", () => {
-      console.log("Command/Ctrl + Left pressed. Moving window left.")
-      this.appState.moveWindowLeft()
-    })
+    // // New shortcuts for moving the window
+    // globalShortcut.register("CommandOrControl+Left", () => {
+    //   console.log("Command/Ctrl + Left pressed. Moving window left.")
+    //   this.appState.moveWindowLeft()
+    // })
 
-    globalShortcut.register("CommandOrControl+Right", () => {
-      console.log("Command/Ctrl + Right pressed. Moving window right.")
-      this.appState.moveWindowRight()
-    })
-    globalShortcut.register("CommandOrControl+Down", () => {
-      console.log("Command/Ctrl + down pressed. Moving window down.")
-      this.appState.moveWindowDown()
-    })
-    globalShortcut.register("CommandOrControl+Up", () => {
-      console.log("Command/Ctrl + Up pressed. Moving window Up.")
-      this.appState.moveWindowUp()
-    })
+    // globalShortcut.register("CommandOrControl+Right", () => {
+    //   console.log("Command/Ctrl + Right pressed. Moving window right.")
+    //   this.appState.moveWindowRight()
+    // })
+    // globalShortcut.register("CommandOrControl+Down", () => {
+    //   console.log("Command/Ctrl + down pressed. Moving window down.")
+    //   this.appState.moveWindowDown()
+    // })
+    // globalShortcut.register("CommandOrControl+Up", () => {
+    //   console.log("Command/Ctrl + Up pressed. Moving window Up.")
+    //   this.appState.moveWindowUp()
+    // })
 
     globalShortcut.register("CommandOrControl+B", () => {
       this.appState.toggleMainWindow()

@@ -53,8 +53,8 @@ export class ScreenshotHelper {
 
   public clearQueues(): void {
     // Clear screenshotQueue
-    this.screenshotQueue.forEach((screenshotPath) => {
-      fs.unlink(screenshotPath, (err) => {
+    this.screenshotQueue.forEach(screenshotPath => {
+      fs.unlink(screenshotPath, err => {
         if (err)
           console.error(`Error deleting screenshot at ${screenshotPath}:`, err)
       })
@@ -62,8 +62,8 @@ export class ScreenshotHelper {
     this.screenshotQueue = []
 
     // Clear extraScreenshotQueue
-    this.extraScreenshotQueue.forEach((screenshotPath) => {
-      fs.unlink(screenshotPath, (err) => {
+    this.extraScreenshotQueue.forEach(screenshotPath => {
+      fs.unlink(screenshotPath, err => {
         if (err)
           console.error(
             `Error deleting extra screenshot at ${screenshotPath}:`,
@@ -78,52 +78,128 @@ export class ScreenshotHelper {
     hideMainWindow: () => void,
     showMainWindow: () => void
   ): Promise<string> {
+    console.log(
+      "[ScreenshotHelper] takeScreenshot called. Current view:",
+      this.view
+    )
     try {
+      console.log("[ScreenshotHelper] Hiding main window before screenshot.")
       hideMainWindow()
-      
+
       // Add a small delay to ensure window is hidden
       await new Promise(resolve => setTimeout(resolve, 100))
-      
+      console.log(
+        "[ScreenshotHelper] Main window should now be hidden. Proceeding to take screenshot."
+      )
+
       let screenshotPath = ""
 
       if (this.view === "queue") {
         screenshotPath = path.join(this.screenshotDir, `${uuidv4()}.png`)
-        await screenshot({ filename: screenshotPath })
+        console.log(
+          `[ScreenshotHelper] Taking screenshot for 'queue'. Path: ${screenshotPath}`
+        )
+        console.log(`[ScreenshotHelper] Calling screenshot-desktop...`)
+        const imageBuffer = await screenshot({ format: "png" })
+        console.log(
+          `[ScreenshotHelper] screenshot-desktop completed. Result is Buffer:`,
+          Buffer.isBuffer(imageBuffer)
+        )
+        if (imageBuffer) {
+          console.log(
+            `[ScreenshotHelper] Buffer size:`,
+            imageBuffer.length,
+            "bytes"
+          )
+          console.log(
+            `[ScreenshotHelper] Writing buffer to file: ${screenshotPath}`
+          )
+          await fs.promises.writeFile(screenshotPath, imageBuffer)
+          console.log(`[ScreenshotHelper] File written successfully`)
+        } else {
+          throw new Error("screenshot-desktop returned no data")
+        }
 
         this.screenshotQueue.push(screenshotPath)
+        console.log(
+          `[ScreenshotHelper] Screenshot added to queue. Queue length: ${this.screenshotQueue.length}`
+        )
+
         if (this.screenshotQueue.length > this.MAX_SCREENSHOTS) {
           const removedPath = this.screenshotQueue.shift()
           if (removedPath) {
             try {
+              console.log(
+                `[ScreenshotHelper] Removing oldest screenshot from queue: ${removedPath}`
+              )
               await fs.promises.unlink(removedPath)
             } catch (error) {
-              console.error("Error removing old screenshot:", error)
+              console.error(
+                "[ScreenshotHelper] Error removing old screenshot:",
+                error
+              )
             }
           }
         }
       } else {
         screenshotPath = path.join(this.extraScreenshotDir, `${uuidv4()}.png`)
-        await screenshot({ filename: screenshotPath })
+        console.log(
+          `[ScreenshotHelper] Taking screenshot for 'solutions'. Path: ${screenshotPath}`
+        )
+        console.log(`[ScreenshotHelper] Calling screenshot-desktop...`)
+        const imageBuffer = await screenshot({ format: "png" })
+        console.log(
+          `[ScreenshotHelper] screenshot-desktop completed. Result is Buffer:`,
+          Buffer.isBuffer(imageBuffer)
+        )
+        if (imageBuffer) {
+          console.log(
+            `[ScreenshotHelper] Buffer size:`,
+            imageBuffer.length,
+            "bytes"
+          )
+          console.log(
+            `[ScreenshotHelper] Writing buffer to file: ${screenshotPath}`
+          )
+          await fs.promises.writeFile(screenshotPath, imageBuffer)
+          console.log(`[ScreenshotHelper] File written successfully`)
+        } else {
+          throw new Error("screenshot-desktop returned no data")
+        }
 
         this.extraScreenshotQueue.push(screenshotPath)
+        console.log(
+          `[ScreenshotHelper] Screenshot added to extra queue. Extra queue length: ${this.extraScreenshotQueue.length}`
+        )
+
         if (this.extraScreenshotQueue.length > this.MAX_SCREENSHOTS) {
           const removedPath = this.extraScreenshotQueue.shift()
           if (removedPath) {
             try {
+              console.log(
+                `[ScreenshotHelper] Removing oldest screenshot from extra queue: ${removedPath}`
+              )
               await fs.promises.unlink(removedPath)
             } catch (error) {
-              console.error("Error removing old screenshot:", error)
+              console.error(
+                "[ScreenshotHelper] Error removing old screenshot:",
+                error
+              )
             }
           }
         }
       }
 
+      console.log(
+        `[ScreenshotHelper] Screenshot taken successfully. Returning path: ${screenshotPath}`
+      )
       return screenshotPath
     } catch (error) {
-      console.error("Error taking screenshot:", error)
+      console.error("[ScreenshotHelper] Error taking screenshot:", error)
       throw new Error(`Failed to take screenshot: ${error.message}`)
     } finally {
       // Ensure window is always shown again
+      console.log("[ScreenshotHelper] Showing main window after screenshot.")
       showMainWindow()
     }
   }
@@ -145,11 +221,11 @@ export class ScreenshotHelper {
       await fs.promises.unlink(path)
       if (this.view === "queue") {
         this.screenshotQueue = this.screenshotQueue.filter(
-          (filePath) => filePath !== path
+          filePath => filePath !== path
         )
       } else {
         this.extraScreenshotQueue = this.extraScreenshotQueue.filter(
-          (filePath) => filePath !== path
+          filePath => filePath !== path
         )
       }
       return { success: true }
